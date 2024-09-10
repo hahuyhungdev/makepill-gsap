@@ -75,7 +75,6 @@
   color: yellow;
 }
 
-/* NOW LETS MAKE OUR CURSOR */
 .cursor {
   width: 18px;
   height: 18px;
@@ -88,6 +87,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 /* =================================section2=================================== */
@@ -161,13 +162,19 @@
   align-items: center;
   justify-content: center;
   margin: auto;
+  position: relative;
+  overflow: visible;
+}
+
+.section4 .service-text {
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
+  pointer-events: none;
 }
 
 .section4 .services:hover {
   background-color: #0f0f0f;
-}
-
-.section4 .services:hover h5 {
   color: white;
 }
 

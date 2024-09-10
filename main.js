@@ -15,9 +15,40 @@ function cursor() {
 }
 cursor();
 
+document.querySelector("main").style.display = "none";
+function loadMainContent() {
+  return new Promise((resolve) => {
+    document.querySelector("main").style.display = "block";
+    resolve();
+  });
+}
+
+function runAnimations() {
+  section1();
+  // section2(),
+  // section3(),
+  section4();
+  section5();
+  section7();
+}
+
+document.getElementById("introVideo").addEventListener("ended", function () {
+  this.style.display = "none";
+  document.querySelector("main").style.display = "block";
+  runAnimations();
+});
 // ===============SECTION1 ANIMATION===========
 
 function section1() {
+  let cursor = document.querySelector(".cursor");
+  let bodySection = document.querySelector(".section1");
+
+  bodySection.addEventListener("mouseenter", () => {
+    gsap.to(cursor, {
+      background: "white",
+      duration: 0.1,
+    });
+  });
   let tl = gsap.timeline();
   tl.from(".header", {
     y: -50,
@@ -32,65 +63,55 @@ function section1() {
   });
 }
 
-document.querySelector("main").style.display = "none";
-document.getElementById("introVideo").addEventListener("ended", function () {
-  // Ẩn video intro
-  document.getElementById("introVideo").style.display = "none";
-
-  // Hiển thị toàn bộ <main> chứa các section
-  document.querySelector("main").style.display = "block";
-
-  // Chạy animation cho section1
-  section1();
-});
-
 // =======================SECTION2 ANIMATIONS==================
 
 function section2() {
-  let sectionTwo = document.querySelector(".section2");
-  let cursor = document.querySelector(".cursor");
-  let body = document.querySelector("body");
+  const sectionTwo = document.querySelector(".section2");
+  const cursor = document.querySelector(".cursor");
+  const video = sectionTwo.querySelector("video");
 
-  // NOW WE WANT TO EXCUTE THIS CODE WHENEVER OUR MOUSE ENTER IN OUR SECTION2
-
-  sectionTwo.addEventListener("mouseenter", () => {
+  function updateCursor(e) {
     gsap.to(cursor, {
-      height: "100px",
-      width: "100px",
-      innerHTML: "<i class='fa-solid fa-volume-high'></i>",
-      fontSize: "25px",
-      color: "black",
-      margin: "20px",
-      background: "white",
+      x: e.clientX,
+      y: e.clientY,
+      duration: 0.2,
+      ease: "power3.out",
     });
+  }
 
-    // AND WE WANT OUR BODY COLOR TO CHANGE TO THIS
+  function toggleMute() {
+    console.log("toggleMute");
+    video.muted = !video.muted;
+    updateCursorStyle();
+  }
 
-    gsap.to(body, {
-      background: "#0f0f0f",
-      color: "white",
-    });
+  function updateCursorStyle() {
+    if (sectionTwo.matches(":hover")) {
+      cursor.style.width = "100px";
+      cursor.style.height = "100px";
+      cursor.style.backgroundColor = "white";
+      cursor.innerHTML = `<i class="fa-solid ${
+        video.muted ? "fa-volume-xmark" : "fa-volume-high"
+      }" style="font-size: 25px; color: black;"></i>`;
+    } else {
+      cursor.style.width = "18px";
+      cursor.style.height = "18px";
+      cursor.style.backgroundColor = "white";
+      cursor.innerHTML = "";
+    }
+  }
+
+  sectionTwo.addEventListener("mouseenter", updateCursorStyle);
+  sectionTwo.addEventListener("mouseleave", updateCursorStyle);
+  document.addEventListener("mousemove", updateCursor);
+
+  sectionTwo.addEventListener("click", (e) => {
+    console.log("click");
+    toggleMute();
   });
 
-  // NOW WE WANT TO EXCUTE THIS CODE WHENEVER OUR MOUSE LEAVE IN OUR SECTION2
-
-  sectionTwo.addEventListener("mouseleave", () => {
-    gsap.to(cursor, {
-      height: "18px",
-      width: "18px",
-      margin: 0,
-      innerHTML: "",
-    });
-
-    // AND WE WANT OUR BODY COLOR TO CHANGE TO THIS
-
-    gsap.to(body, {
-      background: "white",
-      color: "#0f0f0f",
-    });
-  });
+  updateCursorStyle();
 }
-section2();
 
 // =================SECTION3 ANIMATION==============
 function section3() {
@@ -127,40 +148,79 @@ function section3() {
   });
 }
 
-section3();
-
 // =======================SECTION4 ANIMATIONS=============
 
 function section4() {
   let sectionFour = document.querySelector(".section4");
   let cursor = document.querySelector(".cursor");
+  let services = document.querySelector(".section4 .services");
+  let serviceText = document.querySelector(".service-text");
+  let isHovering = false;
+  let tween;
 
   sectionFour.addEventListener("mouseenter", () => {
-    cursor.style.background = "#0f0f0f";
+    gsap.to(cursor, {
+      background: "black",
+      duration: 0.1,
+    });
   });
 
-  gsap.to(sectionFour, {
-    background: "#0f0f0f",
-    color: "white",
-
-    scrollTrigger: {
-      trigger: ".section4 .four .moving-text",
-      start: "bottom center",
-      end: "botttom center",
-      scrub: 2,
-    },
+  services.addEventListener("mouseenter", () => {
+    isHovering = true;
+    services.style.cursor = "pointer";
+    gsap.to(cursor, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.3,
+      width: services.offsetWidth,
+      height: services.offsetHeight,
+      background: "black",
+      ease: "power2.out",
+    });
+    services.style.backgroundColor = "white";
+    services.style.borderColor = "white";
+    gsap.to(serviceText, {
+      color: "white",
+      duration: 0.3,
+      ease: "power2.out",
+    });
+    serviceText.style.zIndex = 99;
   });
 
-  gsap.to(".services", {
-    color: "white",
-    scrollTrigger: {
-      trigger: ".section4 .four .moving-text",
-      start: "bottom center",
-      end: "botttom center",
-      scrub: 2,
-    },
-  });
+  services.addEventListener("mousemove", (e) => {
+    if (isHovering) {
+      let rect = services.getBoundingClientRect();
 
+      let x = e.clientX - (rect.left + rect.width / 2);
+      let y = e.clientY - (rect.top + rect.height / 2);
+
+      gsap.to(serviceText, {
+        x: x * 0.5,
+        y: y * 0.5,
+        duration: 0.05,
+        ease: "power1.out",
+      });
+    }
+  });
+  services.addEventListener("mouseleave", (e) => {
+    isHovering = false;
+    if (tween) tween.kill();
+    tween = gsap.to(cursor, {
+      scale: 0.1,
+      opacity: 1,
+      duration: 0.6,
+      ease: "power3.out",
+    });
+    gsap.to(serviceText, {
+      x: 0,
+      y: 0,
+      color: "black", // Trả lại màu chữ ban đầu
+      duration: 0.5,
+      ease: "power3.out",
+    });
+    services.style.borderColor = "#ccc";
+    services.style.backgroundColor = "transparent"; // Trả lại màu nền ban đầu
+  });
   // FOR CHANGING TO OUR CURSOR COLOR TO WHITE WHEN BACKGROUND WILL TURN ITO BLACK
 
   sectionFour.addEventListener("mouseenter", () => {
@@ -194,6 +254,7 @@ function section4() {
           start: "top center",
           end: "bottom center",
           scrub: 1,
+
           onEnter: () => showVideo(video),
           onLeave: () => hideVideo(video),
           onEnterBack: () => showVideo(video),
@@ -266,11 +327,9 @@ function section4() {
       }
     }
   }
-
   // Call the function to initialize animations
   initProjectAnimations();
 }
-section4();
 
 // ===========================SECTION5 ANMATIONS============
 
@@ -315,7 +374,6 @@ function section5() {
     },
   });
 }
-section5();
 
 // =========================SECTION7 ANIMATIONS-====================
 
@@ -364,4 +422,3 @@ function section7() {
     });
   });
 }
-section7();
